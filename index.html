@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="./index.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Game of Life</title>
+</head>
+<body class="flex flex-wrap">
+    <div id="control-panel" class="hidden fixed z-10 w-screen h-screen flex justify-center items-center bg-transparent">
+        <div class="shadow-2xl bg-white flex justify-evenly items-center border rounded-lg p-4 w-[400px] h-[100]">
+            <button id="start-button" class="bg-slate-200 hover:bg-slate-300 rounded-lg px-4 py-2">Start</button>
+            <button id="pause-button" class="bg-slate-200 hover:bg-slate-300 rounded-lg px-4 py-2">Pause</button>
+            <button id="reset-button" class="bg-slate-200 hover:bg-slate-300 rounded-lg px-4 py-2">Reset</button>
+        </div>
+    </div>
+</body>
+<script>
+    const controlPanel = document.getElementById("control-panel");
+
+    function showControls() {
+        controlPanel.classList.remove("hidden");
+    }
+
+    function hideControls() {
+        controlPanel.classList.add("hidden");
+    }
+
+    function toggleControls() {
+        if(controlPanel.classList.contains("hidden")) {
+            showControls();
+        } else {
+            hideControls();
+        }
+    }
+
+    window.addEventListener("keypress", (event) => {
+        if(event.keyCode === 99) {
+            toggleControls();
+        }
+    })
+
+    const game = new Game();
+    document.getElementById("start-button").onclick = function() {
+        game.start();
+    }
+    document.getElementById("pause-button").onclick = function() {
+        game.pause();
+    }
+    document.getElementById("reset-button").onclick = function() {
+        game.reset();
+    }
+</script>
+</html>
