@@ -1,6 +1,7 @@
 const matrixConfig = {
     ROW_COUNT: 50,
     COL_COUNT: 100,
+    generationalDelay: 100,
     cellHeight: function() {
         return document.documentElement.clientHeight / this.ROW_COUNT;
     },
@@ -51,7 +52,7 @@ function getMatrix(rowCount, colCount, cellHeight, cellWidth, game) {
         for(let col = 0; col < colCount; col++) {
             const cell = getCell(cellHeight, cellWidth);
             cell.onclick = function() {
-                game.addCell(row, col);
+                game.toggleCell(row, col);
             };
             // cell.classList.add(color);
             matrixConfig[row][col] = cell;
@@ -80,12 +81,45 @@ class Game {
     }
 
     addCell(row, col) {
-        if(this.state !== playState.PAUSED) {
-            return;
-        }
         const cell = new Cell(row, col, 3);
         this.currentGeneration[cell.hash] = cell;
         this.activateCell(row, col);
+    }
+
+    removeCell(row, col) {
+        delete this.currentGeneration[Cell.getHash(row, col)];
+        this.deactivateCell(row, col);
+    }
+
+    toggleCell(row, col) {
+        if(this.state !== playState.PAUSED) {
+            return;
+        }
+        if(this.currentGeneration[Cell.getHash(row, col)]) {
+            this.removeCell(row, col);
+        } else {
+            this.addCell(row, col);
+        }
+    }
+
+    start() {
+        this.state = playState.PLAYING;
+        this.loop();
+    }
+
+    pause() {
+        this.state = playState.PAUSED;
+    }
+
+    reset() {
+        setTimeout(() => {
+            this.pause();
+            const cells = this.currentGeneration;
+            this.currentGeneration = {};
+            for(const cellHash in cells) {
+                this.deactivateCell(cells[cellHash].row, cells[cellHash].col);
+            }
+        })
     }
 
     async loop() {
@@ -147,26 +181,6 @@ class Game {
         }
         setTimeout(() => {
             this.loop();
-        }, 100);
-    }
-
-    start() {
-        this.state = playState.PLAYING;
-        this.loop();
-    }
-
-    pause() {
-        this.state = playState.PAUSED;
-    }
-
-    reset() {
-        setTimeout(() => {
-            this.pause();
-            const cells = this.currentGeneration;
-            this.currentGeneration = {};
-            for(const cellHash in cells) {
-                this.deactivateCell(cells[cellHash].row, cells[cellHash].col);
-            }
-        })
+        }, matrixConfig.generationalDelay);
     }
 }
